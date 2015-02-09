@@ -1,0 +1,18 @@
+﻿<script>
+    window.onload = function () {
+        initViewModel();
+    }
+</script>
+<div id="slideout">
+    <img src="~/Icons/arrow-right-32.png" alt="M" />
+    <div id="slideout_inner">
+        <div><a id="box" data-bind="click: loadModel">BOX</a></div>
+        <div><a id="circle" data-bind="click: loadModel">CIRCLE</a></div>
+        <div><a id="cylinder" data-bind="click: loadModel">CYLINDER</a></div>
+        <div data-bind="foreach: serverModels">
+            <div><a data-bind="click: $parent.loadServerModel($index), text: $data"></a></div>
+        </div>
+    </div>
+</div>
+<div id="threeContainer">
+</div>
