@@ -20,6 +20,9 @@ namespace WebApplication1
             bundles.Add(new ScriptBundle("~/bundles/stats").Include(
                 "~/Scripts/stats.min.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/OBJLoader").Include(
+               "~/Scripts/OBJLoader.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/trackball").Include(
                 "~/Scripts/TrackballControls.js"));
 
