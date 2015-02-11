@@ -11,23 +11,38 @@ namespace WebApplication1.Controllers
 {
     public class ModelsController : ApiController
     {
-        string[] mModels = new string[] { "terrain.obj", "rock_waterfall.obj" };
-
         string GetFullPath(string modelName)
         {
-            return Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "Models", modelName);
+            return Path.Combine(GetModelsPaths(), modelName);
+        }
+
+        string GetModelsPaths()
+        {
+            return Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "Models");
+        }
+
+        string[] GetModelFiles()
+        {
+            return Directory.GetFiles(GetModelsPaths()).Select(f => Path.GetFileName(f)).ToArray();
         }
 
         // GET api/<controller>
         public IEnumerable<string> Get()
         {
-            return mModels;
+            return GetModelFiles();
         }
 
         // GET api/<controller>/5
         public string Get(int id)
         {
-            string modelName = mModels[id];
+            string[] files = GetModelFiles();
+
+            if (id >= files.Length)
+            {
+                return null;
+            }
+
+            string modelName = files[id];
             string fullPath = GetFullPath(modelName);
             using (StreamReader reader = new StreamReader(fullPath))
             {

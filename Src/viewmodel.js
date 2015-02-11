@@ -12,6 +12,7 @@ var ViewModel = function () {
   var slideout_content;
 
   this.serverModels = ko.observableArray();
+  this.clientModels = ko.observableArray([ "box", "circle", "cylinder", "triangle" ]);
 
   this.init = function () {
     self.initTHREE();
@@ -22,7 +23,7 @@ var ViewModel = function () {
   this.initTHREE = function () {
     container = document.getElementById("threeContainer");
     slideout_content = document.getElementById("slideout_inner");
-    scene = new THREE.Scene();
+    self.scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
     camera.position.z = 5;
 
@@ -32,11 +33,6 @@ var ViewModel = function () {
     window.addEventListener('resize', self.onWindowResize, false);
     
     container.appendChild(renderer.domElement);
-
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    model = new THREE.Mesh(geometry, material);
-    scene.add(model);
 
     controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls.rotateSpeed = 1.0;
@@ -57,6 +53,7 @@ var ViewModel = function () {
 
     self.render();
     self.animate();
+    self.loadModel("circle");
   }
 
   this.onWindowResize = function () {
@@ -69,7 +66,7 @@ var ViewModel = function () {
   }
 
   this.render = function() {
-    renderer.render(scene, camera);
+    renderer.render(self.scene, camera);
   }
 
   this.animate = function() {
@@ -77,14 +74,12 @@ var ViewModel = function () {
     controls.update();
   }
 
-  this.loadModel = function (data, event) {
-    scene.remove(model);
-
-
-    var id = event.currentTarget.id;
+  this.loadModel = function (id) {
+    self.scene.remove(self.model);
     var geometry;
+
     if (id == "box") {
-      geometry = new THREE.BoxGeometry(1, 1, 1);
+      geometry = new THREE.BoxGeometry(2, 1, 1);
     }
     else if (id == "circle") {
       geometry = new THREE.CircleGeometry(2, 32);
@@ -92,11 +87,20 @@ var ViewModel = function () {
     else if (id == "cylinder") {
       geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
     }
+    else if (id == "triangle") {
+      geometry = new THREE.Geometry();
+      geometry.vertices.push(
+        new THREE.Vector3(-1, 1, 0),
+        new THREE.Vector3(-1, -1, 0),
+        new THREE.Vector3(1, -1, 0));
+      geometry.faces.push(new THREE.Face3(0, 1, 2));
+      geometry.computeBoundingSphere();
+    }
     
     if (geometry)
     {
-      model = new THREE.Mesh(geometry, material);
-      scene.add(model);
+      self.model = new THREE.Mesh(geometry, material);
+      self.scene.add(self.model);
     }
     
     self.render();
@@ -112,10 +116,14 @@ var ViewModel = function () {
   }
 
   this.loadServerModel = function (id) {
+    self.scene.remove(self.model);
     $.get(
         'api/models/' + id(),
         function (data) {
-
+          var loader = new THREE.OBJLoader();
+          self.model = loader.parse(data);
+          self.scene.add(self.model);
+          self.render();
         });
   }
 };
